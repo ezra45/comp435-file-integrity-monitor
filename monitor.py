@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Usage:
   python3 monitor.py baseline <dir> <baseline.json>
@@ -40,7 +39,7 @@ def take_baseline(root):
         snap[rel] = {
             "size": st.st_size,
             "mtime_ns": st.st_mtime_ns,
-            "ctime_ns": st.st_ctime_ns,  # recorded for experiments; not used in scan
+            "ctime_ns": st.st_ctime_ns,
             "sha256": sha256(full),
         }
     return snap
@@ -48,13 +47,13 @@ def take_baseline(root):
 
 def scan(root, baseline, mode="full"):
     """Compare directory to baseline. Returns dict of added/deleted/renamed/modified."""
-    current = {}  # rel -> sha256
+    current = {} 
     for rel, full in walk(root):
         old = baseline.get(rel)
         if mode == "fast" and old is not None:
             st = os.stat(full)
             if st.st_size == old["size"] and st.st_mtime_ns == old["mtime_ns"]:
-                current[rel] = old["sha256"]  # trust metadata, skip hashing
+                current[rel] = old["sha256"]
                 continue
         current[rel] = sha256(full)
 
@@ -96,14 +95,14 @@ def _t_edit(d):
 
 
 def _t_edit_same_size(d):
-    _write(os.path.join(d, "a.txt"), b"HELLO WORLD")  # same length as original
+    _write(os.path.join(d, "a.txt"), b"HELLO WORLD") 
 
 
 def _t_edit_same_size_restore_mtime(d):
     p = os.path.join(d, "a.txt")
     st = os.stat(p)
     _write(p, b"HELLO WORLD")
-    os.utime(p, ns=(st.st_atime_ns, st.st_mtime_ns))  # hide the edit
+    os.utime(p, ns=(st.st_atime_ns, st.st_mtime_ns))
 
 
 def _t_rename(d):
@@ -119,7 +118,7 @@ def _t_add(d):
 
 
 def _t_touch(d):
-    os.utime(os.path.join(d, "a.txt"))  # harmless: new mtime, same content
+    os.utime(os.path.join(d, "a.txt"))
 
 
 TESTS = [
@@ -129,7 +128,7 @@ TESTS = [
     ("rename", _t_rename, True),
     ("delete", _t_delete, True),
     ("add", _t_add, True),
-    ("touch (harmless)", _t_touch, False),
+    ("touch", _t_touch, False),
 ]
 
 
@@ -142,7 +141,7 @@ def selftest():
             workdir = tempfile.mkdtemp()
             target = os.path.join(workdir, "target")
             os.mkdir(target)
-            _write(os.path.join(target, "a.txt"), b"hello world")  # 11 bytes
+            _write(os.path.join(target, "a.txt"), b"hello world")
             _write(os.path.join(target, "b.txt"), b"untouched")
             base = take_baseline(target)
             action(target)
